@@ -1,55 +1,58 @@
-import csv
 import email
 import glob
+from pandas import DataFrame
+from email.header import decode_header, make_header
 from email.message import Message
 from bs4 import BeautifulSoup
-
-spy_pixels = []
+import json
 
 
 def find_spy_pixels():
-    parse_eml_files()
-    write_results(spy_pixels)
+    df = DataFrame([], columns=["src", "sender", "filename", "attributes"])
+    df = parse_eml_files(df)
+    df.drop_duplicates(subset=["src"])
+    df.to_csv("results.csv")
 
 
-def parse_eml_files():
+def parse_eml_files(df: DataFrame):
+    c = 0
     for path in glob.glob("emails/*.eml"):
+        c += 1
+        if c > 200:
+            return df
         print(f"Processing {path}...")
         with open(path, "rb") as file:
             message = email.message_from_bytes(file.read())
-        sender = message.get('From')
+        sender = str(make_header(decode_header(message.get('From'))))
         if is_content_type_html(message):
-            parse_html(message, path, sender)
+            df = parse_html(df, message, path, sender)
             continue
         if message.is_multipart():
             for part in message.get_payload():
                 if is_content_type_html(part):
-                    parse_html(part, path, sender)
+                    df = parse_html(df, part, path, sender)
                     continue
+    return df
 
 
-def parse_html(message: Message, path: str, sender: str):
+def parse_html(df: DataFrame, message: Message, path: str, sender: str):
     html = message.get_payload(decode=True)
     soup = BeautifulSoup(html, "html.parser")
     for img in soup.find_all("img", {"height": "1", "width": "1"}):
-        log_spy_pixel(img["src"], img["alt"] if "alt" in img else "", img, path, sender)
+        df = log_spy_pixel(df, img["src"], json.dumps(img.attrs), path, sender)
+    return df
 
 
 def is_content_type_html(message):
     return message.get_content_type() == "text/html"
 
 
-def log_spy_pixel(src: str, alt: str, raw: str, filename: str, sender: str):
-    spy_pixels.append({"src": src, "alt": alt, "raw": raw, "filename": filename, "sender": sender})
-
-
-def write_results(results: list):
-    with open("results.csv", "w") as file:
-        csv_writer = csv.writer(file)
-        csv_writer.writerow(["src", "alt", "raw", "filename", "sender"])
-        csv_writer.writerows(
-            map(lambda r: [r["src"], r["alt"], r["raw"], r["filename"], r["sender"]], results)
-        )
+def log_spy_pixel(df: DataFrame, src: str, attributes: str, filename: str, sender: str):
+    print("Found a spy pixel")
+    return df.append(
+        {"src": src, "attributes": attributes, "filename": filename, "sender": sender},
+        ignore_index=True
+    )
 
 
 if __name__ == "__main__":
