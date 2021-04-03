@@ -14,6 +14,7 @@ def find_spy_pixels():
 
 def parse_eml_files():
     for path in glob.glob("emails/*.eml"):
+        print(f"Processing {path}...")
         with open(path, "rb") as file:
             message = email.message_from_bytes(file.read())
         sender = message.get('From')
@@ -31,7 +32,7 @@ def parse_html(message: Message, path: str, sender: str):
     html = message.get_payload(decode=True)
     soup = BeautifulSoup(html, "html.parser")
     for img in soup.find_all("img", {"height": "1", "width": "1"}):
-        log_spy_pixel(img["src"], img["alt"], img, path, sender)
+        log_spy_pixel(img["src"], img["alt"] if "alt" in img else "", img, path, sender)
 
 
 def is_content_type_html(message):
