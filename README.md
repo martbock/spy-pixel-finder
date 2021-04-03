@@ -46,7 +46,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Copy your emails into the correct directory
-cd /path/to/emails && cp * /path/to/spy-pixel-finder/
+cd /path/to/emails && cp * /path/to/spy-pixel-finder/emails/
 
 # Execute the script, this may take a while
 python main.py
