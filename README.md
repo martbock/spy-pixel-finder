@@ -11,14 +11,15 @@ Say [No to Spy Pixels](https://notospypixels.com/).
 The output in the `results.csv` file should look something like this:
 
 ```csv
-,src,sender,filename,attributes
-1,http://ad.doubleclick.net/activity;...;sz=1x1;ord=1?,"""Adobe Systems"" <mail@info.adobesystems.com>","emails/test.eml","{""src"": ""http://ad.doubleclick.net/activity;...;sz=1x1;ord=1?"", ""width"": ""1"", ""height"": ""1"", ""border"": ""0"", ""alt"": """"}"
+,src,domain,sender,filename,attributes
+1,ad.doubleclick.net,http://ad.doubleclick.net/activity;...;sz=1x1;ord=1?,"""Adobe Systems"" <mail@info.adobesystems.com>","emails/test.eml","{""src"": ""http://ad.doubleclick.net/activity;...;sz=1x1;ord=1?"", ""width"": ""1"", ""height"": ""1"", ""border"": ""0"", ""alt"": """"}"
 ...
 ```
 
 ### What Do These Columns Mean?
 
 * `src` – Source URL of the 1x1 image.
+* `domain` – Extracted domain of the image URL.
 * `sender` – Value of the `From` email header. This does not necessarily have to be correct since this header is
   manipulable.
 * `filename` – Path of the `.eml` file that contained the image.
@@ -53,6 +54,26 @@ python main.py
 
 # See which spy pixels the script has identified
 less results.csv
+```
+
+## Console Arguments
+
+The script provides multiple options what to filter out when creating the `results.csv` file.
+Please see the `--help` output of the script for details:
+
+```sh
+$ python3 main.py -h
+usage: main.py [-h] [--no-drop-src-duplicates] [-d] [--remove-subdomains]
+
+Find spy pixels in your emails.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --no-drop-src-duplicates
+                        Don't drop rows that have the same image source URL. Defaults to false.
+  -d, --drop-domain-duplicates
+                        Drop rows that have a duplicate domain of the image URL. Defaults to false.
+  --remove-subdomains   Remove subdomains of image URLs. This way you can get rid of customer subdomains. Defaults to false.
 ```
 
 ## Inspiration
