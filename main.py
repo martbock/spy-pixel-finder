@@ -10,7 +10,8 @@ import json
 def find_spy_pixels():
     df = DataFrame([], columns=["src", "sender", "filename", "attributes"])
     df = parse_eml_files(df)
-    df.drop_duplicates(subset=["src"])
+    df = df.drop_duplicates(subset=["src"])
+    df = df.sort_values(by=["sender"])
     df.to_csv("results.csv")
 
 
