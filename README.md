@@ -24,6 +24,11 @@ The output in the `results.csv` file should look something like this:
 * `filename` – Path of the `.eml` file that contained the image.
 * `attributes` – JSON-encoded dictionary of all HTML attributes along with their values on the `img` tag.
 
+## Prerequisites
+
+You need Python 3 installed, optionally with the virtual environment extension. Other than that, the script should be
+able to run everywhere.
+
 ## Installation
 
 Follow these instructions to run this script on your machine:
@@ -49,6 +54,12 @@ python main.py
 # See which spy pixels the script has identified
 less results.csv
 ```
+
+## Inspiration
+
+Thank you to [@dhh](https://github.com/dhh) and the [Basecamp team](https://github.com/basecamp) for bringing attention
+to this issue. Also, thanks to [@apparition47](https://github.com/apparition47) for developing the Apple Mail
+extension [MailTrackerBlocker](https://github.com/apparition47/MailTrackerBlocker) that blocks spy pixels.
 
 ## License
 
