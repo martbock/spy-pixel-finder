@@ -1,4 +1,4 @@
-## Spy Pixel Finder
+# Spy Pixel Finder
 
 This Python script will find spy pixels (aka tracking pixels) in your emails. To use this script, you have to export the
 emails you want to scan to `.eml` files and place them in the `emails` subdirectory. The script will generate a
@@ -6,7 +6,7 @@ emails you want to scan to `.eml` files and place them in the `emails` subdirect
 
 Say [No to Spy Pixels](https://notospypixels.com/).
 
-### Example Output
+## Example Output
 
 The output in the `results.csv` file should look something like this:
 
@@ -16,7 +16,7 @@ The output in the `results.csv` file should look something like this:
 ...
 ```
 
-#### Columns
+### What Do These Columns Mean?
 
 * `src` – Source URL of the 1x1 image.
 * `sender` – Value of the `From` email header. This does not necessarily have to be correct since this header is
@@ -24,7 +24,7 @@ The output in the `results.csv` file should look something like this:
 * `filename` – Path of the `.eml` file that contained the image.
 * `attributes` – JSON-encoded dictionary of all HTML attributes along with their values on the `img` tag.
 
-### Installation
+## Installation
 
 Follow these instructions to run this script on your machine:
 
@@ -50,6 +50,6 @@ python main.py
 less results.csv
 ```
 
-### License
+## License
 
 This script is licenced under the [MIT license](./LICENSE).
