@@ -16,11 +16,7 @@ def find_spy_pixels():
 
 
 def parse_eml_files(df: DataFrame):
-    c = 0
     for path in glob.glob("emails/*.eml"):
-        c += 1
-        if c > 200:
-            return df
         print(f"Processing {path}...")
         with open(path, "rb") as file:
             message = email.message_from_bytes(file.read())
@@ -49,7 +45,7 @@ def is_content_type_html(message):
 
 
 def log_spy_pixel(df: DataFrame, src: str, attributes: str, filename: str, sender: str):
-    print("Found a spy pixel")
+    print(f"Found a spy pixel: {src}")
     return df.append(
         {"src": src, "attributes": attributes, "filename": filename, "sender": sender},
         ignore_index=True
