@@ -1,18 +1,40 @@
 import email
 import glob
-from pandas import DataFrame
+import json
+from argparse import ArgumentParser, Namespace
 from email.header import decode_header, make_header
 from email.message import Message
+from urllib.parse import urlparse
+
+import numpy as np
 from bs4 import BeautifulSoup
-import json
+from pandas import DataFrame
 
 
 def find_spy_pixels():
-    df = DataFrame([], columns=["src", "sender", "filename", "attributes"])
+    args = parse_arguments()
+    df = DataFrame([], columns=["domain", "src", "sender", "filename", "attributes"])
     df = parse_eml_files(df)
-    df = df.drop_duplicates(subset=["src"])
-    df = df.sort_values(by=["sender"])
+    if args.drop_src_duplicates:
+        df = df.drop_duplicates(subset=["src"])
+    df = parse_domains(df, args.remove_subdomains)
+    df = drop_no_domain(df)
+    if args.drop_domain_duplicates:
+        df = df.drop_duplicates(subset=["domain"])
+    df = df.sort_values(by=["domain"])
     df.to_csv("results.csv")
+
+
+def parse_arguments() -> Namespace:
+    parser = ArgumentParser(description="Find spy pixels in your emails.")
+    parser.add_argument("--no-drop-src-duplicates", dest="drop_src_duplicates", action="store_false",
+                        help="Don't drop rows that have the same image source URL. Defaults to false.")
+    parser.add_argument("-d", "--drop-domain-duplicates", dest="drop_domain_duplicates", action="store_true",
+                        help="Drop rows that have a duplicate domain of the image URL. Defaults to false.")
+    parser.add_argument("--remove-subdomains", dest="remove_subdomains", action="store_true",
+                        help="Remove subdomains of image URLs. This way you can get rid of customer subdomains. "
+                             "Defaults to false.")
+    return parser.parse_args()
 
 
 def parse_eml_files(df: DataFrame):
@@ -50,6 +72,21 @@ def log_spy_pixel(df: DataFrame, src: str, attributes: str, filename: str, sende
         {"src": src, "attributes": attributes, "filename": filename, "sender": sender},
         ignore_index=True
     )
+
+
+def parse_domains(df: DataFrame, remove_subdomains: bool):
+    for i, row in df.iterrows():
+        domain = urlparse(row["src"]).netloc
+        if remove_subdomains:
+            domain = '.'.join(domain.split('.')[1:])
+        df.at[i, "domain"] = domain
+    return df
+
+
+def drop_no_domain(df: DataFrame):
+    df["domain"].replace('', np.nan, inplace=True)
+    df.dropna(subset=["domain"], inplace=True)
+    return df
 
 
 if __name__ == "__main__":
