@@ -45,7 +45,7 @@ def log_spy_pixel(src: str, alt: str, raw: str, filename: str, sender: str):
 def write_results(results: list):
     with open("results.csv", "w") as file:
         csv_writer = csv.writer(file)
-        csv_writer.writerow(["src", "alt", "raw", "filename"])
+        csv_writer.writerow(["src", "alt", "raw", "filename", "sender"])
         csv_writer.writerows(
             map(lambda r: [r["src"], r["alt"], r["raw"], r["filename"], r["sender"]], results)
         )
